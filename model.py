@@ -1,37 +1,32 @@
-# model.py
 import re
-
-# Dummy list of informal words for simple formality check
-INFORMAL_WORDS = [
-    "stuff", "cool", "awesome", "gotta", "wanna", "kinda", "sorta", "ya", "dude", "bro", "okay"
-]
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
 
 def evaluate_formality(text):
-    """Check how many informal words appear."""
-    words = re.findall(r'\b\w+\b', text.lower())
-    informal_found = [word for word in words if word in INFORMAL_WORDS]
-    score = 1 - (len(informal_found) / max(len(words), 1))
-    return round(score, 2)
+    informal_words = set(["cool", "okay", "ok", "awesome", "stuff", "things", "a lot", "kinda", "gonna"])
+    words = word_tokenize(text.lower())
+    words = [w for w in words if w.isalpha() and w not in stopwords.words('english')]
+    if not words:
+        return 0.0
+    informal_count = sum(1 for w in words if w in informal_words)
+    score = 1 - informal_count / len(words)
+    return max(0.0, min(1.0, score))
 
 def rewrite_resume(text):
-    """Simple rewrite: replace informal words with formal alternatives."""
     replacements = {
-        "stuff": "items",
+        "okay": "acceptable",
+        "ok": "satisfactory",
         "cool": "impressive",
-        "awesome": "excellent",
-        "gotta": "have to",
-        "wanna": "want to",
+        "stuff": "materials",
+        "things": "items",
+        "a lot": "many",
         "kinda": "somewhat",
-        "sorta": "approximately",
-        "ya": "you",
-        "dude": "person",
-        "bro": "colleague",
-        "okay": "acceptable"
+        "gonna": "going to",
+        "awesome": "outstanding"
     }
-    pattern = re.compile(r'\b(' + '|'.join(replacements.keys()) + r')\b', flags=re.IGNORECASE)
-
-    def replace(match):
-        word = match.group(0)
-        return replacements.get(word.lower(), word)
-
-    return pattern.sub(replace, text)
+    for informal, formal in replacements.items():
+        text = re.sub(rf"\b{informal}\b", formal, text, flags=re.IGNORECASE)
+    return text
