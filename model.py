@@ -1,8 +1,7 @@
 import spacy
 from spacy.cli import download
-import os
 
-# Ensure model is downloaded in cloud deployment
+# Try loading spaCy model; download if missing
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
@@ -16,5 +15,4 @@ def evaluate_formality(text):
 
 def rewrite_resume(text):
     doc = nlp(text)
-    sentences = [sent.text.capitalize() for sent in doc.sents]
-    return " ".join(sentences)
+    return " ".join([sent.text.capitalize() for sent in doc.sents])
