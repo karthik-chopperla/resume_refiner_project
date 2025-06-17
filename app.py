@@ -1,32 +1,28 @@
 import streamlit as st
-from model import evaluate_formality, rewrite_resume
+from model import load_model, evaluate_formality, rewrite_resume
 from utils import text_diff
 
 st.set_page_config(page_title="Smart Resume Refiner", layout="wide")
-
 st.title("🧠 Smart Resume Refiner")
-st.write("Paste your resume below to get a formality score, grammar suggestions, and AI-powered rewrites.")
 
-resume_input = st.text_area("📄 Paste Resume Text", height=300)
+# ✅ Load spaCy model safely
+load_model()
 
-if st.button("✨ Refine Resume"):
-    if not resume_input.strip():
-        st.warning("Please enter some resume content.")
+input_text = st.text_area("Paste your resume content here:", height=200)
+
+if st.button("Refine My Resume"):
+    if input_text.strip():
+        score = evaluate_formality(input_text)
+        refined = rewrite_resume(input_text)
+        diff = text_diff(input_text, refined)
+
+        st.subheader("🧪 Formality Score")
+        st.json(score)
+
+        st.subheader("🧾 Refined Resume")
+        st.text_area("Improved version", refined, height=200)
+
+        st.subheader("🔍 Changes Made")
+        st.markdown(diff, unsafe_allow_html=True)
     else:
-        score, issues = evaluate_formality(resume_input)
-        revised = rewrite_resume(resume_input)
-        comparison = text_diff(resume_input, revised)
-
-        st.subheader("📊 Formality Score")
-        st.success(f"Your Resume Formality Score: {score}/100")
-
-        st.subheader("🔍 Identified Issues")
-        st.write(f"- Long Sentences: {issues['long_sentences']}")
-        st.write(f"- Contractions: {issues['contractions']}")
-        st.write(f"- Passive Voice Uses: {issues['passive_voice']}")
-
-        st.subheader("✍️ Suggested Rewrite")
-        st.text_area("Rewritten Resume", revised, height=300)
-
-        st.subheader("🧠 AI Explanation of Changes")
-        st.markdown(comparison)
+        st.warning("Please paste your resume text to begin.")
