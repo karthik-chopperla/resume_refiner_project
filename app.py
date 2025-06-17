@@ -1,8 +1,7 @@
-# app.py (updated main section)
+# app.py (cleaned up version)
 
 import streamlit as st
 from model import evaluate_formality, rewrite_resume
-from utils import text_diff
 
 st.set_page_config(page_title="Smart Resume Refiner", layout="wide")
 st.title("📄 Smart Resume Refiner")
@@ -24,7 +23,8 @@ if resume_text:
     refined = rewrite_resume(resume_text)
     st.code(refined, language="markdown")
 
-    st.subheader("🔍 Differences")
-    st.write(text_diff(resume_text, refined))
+    # Removed differences section
+    # st.subheader("🔍 Differences")
+    # st.write(text_diff(resume_text, refined))
 else:
     st.info("Please upload a file or paste your resume above.")
